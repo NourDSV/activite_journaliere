@@ -8,6 +8,9 @@ import plotly.express as px
 import plotly.graph_objects as go
 import calendar
 from calendar import monthrange
+import io
+from PIL import Image
+import plotly.io as pio
 
 
 
@@ -22,7 +25,17 @@ page = st.sidebar.radio(
     index=0
 )
 ###################################################################################################
+if 'fig_store' not in st.session_state:
+    st.session_state['fig_store'] = []  
 
+def _add_or_replace_fig(title, fig):
+ 
+    for i, item in enumerate(st.session_state['fig_store']):
+        if item['title'] == title:
+            st.session_state['fig_store'][i] = {'title': title, 'fig': fig}
+            break
+    else:
+        st.session_state['fig_store'].append({'title': title, 'fig': fig})
 
 if page == "Upload":
     st.title("Upload & Preview")
@@ -80,8 +93,7 @@ if page == "Upload":
 
         df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
-        # with st.expander("voire tableau"):
-        #     st.dataframe(df)
+
 
         st.session_state["df"] = df
 
@@ -160,11 +172,6 @@ if page == "Upload":
         return f"{x:,.0f}".replace(",", " ")
 
     def mk_delta_str(cur_val: float, prev_val: float) -> tuple[str, str]:
-        """
-        Returns (delta_text, delta_color):
-        - delta_text: "+1 234 (+5.6%)" or "—" if prev == 0
-        - delta_color: "normal" (green plus / red minus) or "off"
-        """
         if prev_val == 0:
             return ("—", "off")
         abs_delta = cur_val - prev_val
@@ -235,6 +242,8 @@ if page == "Upload":
                     prev_range=(prev_ytd_start, prev_ytd_end),
                 )
 
+    # with st.expander("voire tableau"):
+    #     st.dataframe(df)
 
 
 
@@ -248,11 +257,6 @@ if page == "Weekly Analysis":
         st.stop()
 
     df = st.session_state['df'] 
-
-
-
-
-   
 
     df = st.session_state['df'].copy()
 
@@ -532,6 +536,7 @@ if page == "Weekly Analysis":
                 margin=dict(t=60, b=60, l=10, r=10)
             )
             return fig
+            
 
         with col1:
         
@@ -542,6 +547,7 @@ if page == "Weekly Analysis":
                 ylabel="Nombre de dossiers"
             )
             st.plotly_chart(fig_d, use_container_width=True)
+            _add_or_replace_fig(f"Weekly comparaison nb_dossiers", fig_d)
 
         with col2:
         
@@ -552,6 +558,8 @@ if page == "Weekly Analysis":
                 ylabel="Poids total"
             )
             st.plotly_chart(fig_p, use_container_width=True)
+            _add_or_replace_fig(f"Weekly comparaison poids", fig_p)   
+            
 
 
 
@@ -684,6 +692,7 @@ if page == "Weekly Analysis":
                 ylabel="Nombre de dossiers"
             )
             st.plotly_chart(fig_fam_d, use_container_width=True)
+            _add_or_replace_fig(f"Weekly comparaison nb_dossiers par famille", fig_fam_d)
 
         with col4:
             fig_fam_p = plot_plotly_with_pct_family(
@@ -693,6 +702,8 @@ if page == "Weekly Analysis":
                 ylabel="Poids total"
             )
             st.plotly_chart(fig_fam_p, use_container_width=True)
+            _add_or_replace_fig(f"weekly comparaison poids par famille", fig_fam_p)
+            
 
 
 
@@ -811,6 +822,7 @@ if page == "Weekly Analysis":
         
 
                 st.plotly_chart(fig, use_container_width=True)
+                _add_or_replace_fig(f"Weekly évolution nb_dossiers ", fig)
 
             with st.expander("EMA?"):
                 st.write("""
@@ -1168,13 +1180,15 @@ if page == "Monthly Analysis":
         with col1:
             st.plotly_chart(
                 plot_plotly_with_pct(dossiers_long, 'nb_dossiers', "Évolution nb_dossiers", "Nombre de dossiers"),
-                use_container_width=True
-            )
+                use_container_width=True)
+            _add_or_replace_fig(f"monthly comparaison nb_dossiers", "Évolution nb_dossiers")
+            
         with col2:
             st.plotly_chart(
                 plot_plotly_with_pct(poids_long, 'poids', "Évolution du poids", "Poids total"),
                 use_container_width=True
             )
+            _add_or_replace_fig(f"monthly comparaison poids", "Évolution du poids")
 
     with tab2:
         # ---------- Famille ----------
@@ -1282,11 +1296,13 @@ if page == "Monthly Analysis":
                 plot_plotly_with_pct_family(dossiers_fam_long, 'nb_dossiers', "Évolution nb_dossiers", "Nombre de dossiers"),
                 use_container_width=True
             )
+            _add_or_replace_fig(f"monthly comparaison nb_dossiers par famille", "Évolution nb_dossiers")
         with col4:
             st.plotly_chart(
                 plot_plotly_with_pct_family(poids_fam_long, 'poids', "Évolution du poids", "Poids total"),
                 use_container_width=True
             )
+            _add_or_replace_fig(f"monthly comparaison poids par famille", "Évolution du poids")
 
     # =====================================================
     # Monthly evolution: Bar + Line (user-chosen period, 2 tabs)
@@ -1379,6 +1395,7 @@ if page == "Monthly Analysis":
                 )
                 fig.update_xaxes(tickangle=-45)
                 st.plotly_chart(fig, use_container_width=True)
+                _add_or_replace_fig(f"monthly evolution {bar_metric}", fig)
 
             with st.expander("EMA ?"):
                 st.write("""
@@ -1472,6 +1489,7 @@ if page == "Monthly Analysis":
                 )
                 fig_fam_month.update_xaxes(tickangle=-45)
                 st.plotly_chart(fig_fam_month, use_container_width=True)
+                _add_or_replace_fig(f"monthly evolution {bar_metric} par famille", fig)
 
 
 
@@ -1702,9 +1720,10 @@ if page == "Yearly analysis":
 
         with col1:
             st.plotly_chart(plot_with_pct(dossiers_long, 'nb_dossiers', "Évolution nb_dossiers", "Nombre de dossiers"), use_container_width=True)
+            _add_or_replace_fig(f"Yearly comparaison nb_dossier", "Évolution nb_dossiers")
         with col2:
             st.plotly_chart(plot_with_pct(poids_long, 'poids', "Évolution du poids", "Poids total"), use_container_width=True)
-
+            _add_or_replace_fig(f"Yearly comparaison poids", "Évolution du poids")
     with tab2:
         # ---------- Famille ----------
         def build_family_pivot(metric: str) -> pd.DataFrame:
@@ -1814,9 +1833,11 @@ if page == "Yearly analysis":
         col3, col4 = st.columns(2, gap="large")
         with col3:
             st.plotly_chart(plot_family(dossiers_fam_long, 'nb_dossiers', "Évolution nb_dossiers", "Nombre de dossiers"), use_container_width=True)
+            _add_or_replace_fig(f"Yearly comparaison nb_dossier par famille", "Évolution nb_dossiers")
         with col4:
-            st.plotly_chart(plot_family(poids_fam_long, 'poids', "Évolution du poids", "Poids total"), use_container_width=True)
 
+            st.plotly_chart(plot_family(poids_fam_long, 'poids', "Évolution du poids", "Poids total"), use_container_width=True)
+            _add_or_replace_fig(f"Yearly comparaison poids par famille", "Évolution du poids")
     # =====================================================
     # Yearly evolution: Bar + Line (EMA 2 years)
     # =====================================================
@@ -1891,7 +1912,7 @@ if page == "Yearly analysis":
                 )
                 fig.update_xaxes(tickangle=-45)
                 st.plotly_chart(fig, use_container_width=True)
-
+                _add_or_replace_fig(f"Yearly evolution {bar_metric} ", fig)
             with st.expander("EMA ?"):
                 st.write("""
                 La **moyenne mobile exponentielle (EMA)** sur 2 ans lisse la tendance des données
@@ -1970,7 +1991,61 @@ if page == "Yearly analysis":
                 )
                 fig_fam_year.update_xaxes(tickangle=-45)
                 st.plotly_chart(fig_fam_year, use_container_width=True)
+                _add_or_replace_fig(f"Yearly evolution {bar_metric} par famille ", fig_fam_year)
 
-                           
+                        
+
+
+
+if 'fig_store' not in st.session_state:
+    st.session_state['fig_store'] = []  
+
+with st.sidebar:
+    st.markdown("### 📄 Export charts to PDF")
+
+    titles = [item['title'] for item in st.session_state['fig_store']]
+
+    if not titles:
+        st.info("No charts registered yet. Open pages to render charts first.")
+    else:
+        selected_titles = st.multiselect(
+            "Choose charts to include",
+            options=titles,
+            default=[],                     # <-- empty by default
+            key="pdf_select_titles_sidebar"
+        )
+
+        btn_disabled = (len(selected_titles) == 0)
+
+        if st.button("📥 Build PDF from selection", disabled=btn_disabled, key="pdf_build_sidebar"):
+            try:
+                images = []
+                for t in selected_titles:
+                    # find the figure by title
+                    fig = next(item['fig'] for item in st.session_state['fig_store'] if item['title'] == t)
+
+                    # force reliable export colors
+                    fig.update_layout(paper_bgcolor='white', plot_bgcolor='white', template='plotly')
+
+                    png_bytes = pio.to_image(fig, format="png", scale=2)  # needs kaleido
+                    images.append(Image.open(io.BytesIO(png_bytes)).convert("RGB"))
+
+                if not images:
+                    st.warning("Nothing selected.")
+                else:
+                    pdf_buf = io.BytesIO()
+                    images[0].save(pdf_buf, format="PDF", save_all=True, append_images=images[1:])
+                    pdf_buf.seek(0)
+
+                    st.download_button(
+                        "⬇️ Save PDF",
+                        data=pdf_buf,
+                        file_name=f"charts_{pd.Timestamp.now():%Y%m%d_%H%M}.pdf",
+                        mime="application/pdf",
+                        use_container_width=True,
+                        key="pdf_download_sidebar"
+                    )
+            except Exception as e:
+                st.error(f"Export failed: {e}\nCheck requirements: kaleido, Pillow.")
 
 
