@@ -1,0 +1,2 @@
+cd "C:\Users\nour.ben-romdhane\OneDrive - DSV\Desktop\activité journaliere"
+python -m streamlit run AJ.py
