@@ -485,7 +485,8 @@ if page == "Weekly Analysis":
                 y=y_col,
                 color='Semaine',
                 barmode='group',
-                category_orders={'cat_key': order_cat, 'Semaine': [w_latest, w_prev]},
+                category_orders={'cat_key': order_cat, 'Semaine': [w_prev, w_latest]},
+                color_discrete_map={w_latest: '#1f77b4', w_prev: '#aec7e8'},
                 title=title
             )
 
@@ -524,7 +525,7 @@ if page == "Weekly Analysis":
                     text=text,
                     showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right"
+                    xanchor="left"
                 )
 
             fig.update_layout(
@@ -612,7 +613,8 @@ if page == "Weekly Analysis":
                 y=y_col,
                 color='Semaine',
                 barmode='group',
-                category_orders={'fam_key': order_fam, 'Semaine': [w_latest, w_prev]},
+                category_orders={'fam_key': order_fam, 'Semaine': [w_prev, w_latest ]},
+                color_discrete_map={w_latest: '#1f77b4',w_prev:'#aec7e8'},
                 title=title
             )
 
@@ -667,8 +669,8 @@ if page == "Weekly Analysis":
                     text=text,
                     showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right",
-                    xshift=-20       # shift left so it sits above the left bar (tune if needed)
+                    xanchor="left",
+                    xshift=20       # shift left so it sits above the left bar (tune if needed)
                 )
 
             fig.update_layout(
@@ -1132,7 +1134,8 @@ if page == "Monthly Analysis":
                 y=y_col,
                 color='Mois',
                 barmode='group',
-                category_orders={'cat_key': order_cat, 'Mois': [w_latest, w_ref]},
+                category_orders={'cat_key': order_cat, 'Mois': [w_ref, w_latest]},
+                color_discrete_map={w_latest: '#1f77b4',w_ref:'#aec7e8'},
                 title=title
             )
             fig.update_traces(hovertemplate=f"{ylabel}=%{{y:.0f}}<extra></extra>")
@@ -1164,7 +1167,7 @@ if page == "Monthly Analysis":
                     text=text,
                     showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right"
+                    xanchor="left"
                 )
 
             fig.update_layout(
@@ -1234,7 +1237,8 @@ if page == "Monthly Analysis":
                 y=y_col,
                 color='Mois',
                 barmode='group',
-                category_orders={'fam_key': order_fam, 'Mois': [w_latest, w_prev]},
+                category_orders={'fam_key': order_fam, 'Mois': [w_prev , w_latest]},
+                color_discrete_map={w_latest: '#1f77b4',w_prev:'#aec7e8'},
                 title=title
             )
             fig.update_traces(hovertemplate=f"{ylabel}=%{{y:.0f}}<extra></extra>")
@@ -1276,8 +1280,8 @@ if page == "Monthly Analysis":
                     xref="x", yref="y",
                     text=text, showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right",
-                    xshift=-20
+                    xanchor="left",
+                    xshift=20
                 )
 
             fig.update_layout(
@@ -1674,7 +1678,8 @@ if page == "Yearly analysis":
                 y=y_col,
                 color='Année',
                 barmode='group',
-                category_orders={'cat_key': order_cat, 'Année': [latest, prev]},
+                category_orders={'cat_key': order_cat, 'Année': [prev, latest]},
+                color_discrete_map={latest: '#1f77b4',prev:'#aec7e8'},
                 title=title
             )
             fig.update_traces(hovertemplate=f"{ylabel}=%{{y:.0f}}<extra></extra>")
@@ -1705,7 +1710,7 @@ if page == "Yearly analysis":
                     text=text,
                     showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right"
+                    xanchor="left"
                 )
 
             fig.update_layout(
@@ -1780,7 +1785,8 @@ if page == "Yearly analysis":
                 y=y_col,
                 color='Année',
                 barmode='group',
-                category_orders={'fam_key': order_fam, 'Année': [latest, prev]},
+                category_orders={'fam_key': order_fam, 'Année': [prev,latest]},
+                color_discrete_map={latest: '#1f77b4',prev:'#aec7e8'},
                 title=title
             )
             fig.update_traces(hovertemplate=f"{ylabel}=%{{y:.0f}}<extra></extra>")
@@ -1816,8 +1822,8 @@ if page == "Yearly analysis":
                     text=text,
                     showarrow=False,
                     font=dict(size=12, color=color, family="Arial Black"),
-                    xanchor="right",
-                    xshift=-20
+                    xanchor="left",
+                    xshift=20
                 )
 
             fig.update_layout(
