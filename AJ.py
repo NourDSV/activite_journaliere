@@ -2024,10 +2024,9 @@ with st.sidebar:
                     # find the figure by title
                     fig = next(item['fig'] for item in st.session_state['fig_store'] if item['title'] == t)
 
-                    # force reliable export colors
-                    fig.update_layout(paper_bgcolor='white', plot_bgcolor='white', template='plotly')
+                    
 
-                    png_bytes = pio.to_image(fig, format="png", scale=2)  # needs kaleido
+                    png_bytes = pio.to_image(fig, format="png", scale=2, engine="kaleido")  # needs kaleido
                     images.append(Image.open(io.BytesIO(png_bytes)).convert("RGB"))
 
                 if not images:
